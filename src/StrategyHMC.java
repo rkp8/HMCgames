@@ -1,6 +1,12 @@
-/**Note: I had to create a new method called getType() in the Game Interface and GameRPS and GameBOTS files to help differentiate
- * between the two different games. I hope this is okay.
+/** Answers to Questions:
+        *
+        * 1 and 2)
+        * The 
+        *
+        * 3)
+        *
  */
+
 
 
 import java.util.Arrays;
@@ -10,6 +16,7 @@ public class StrategyHMC implements Strategy {
 
     //two strategies, one for player 1 and one for player 2
     private double[] strategy1, strategy2;
+    private double[] SUM_STRATEGY1, SUM_STRATEGY2;
 
     private Random random = new Random();
 
@@ -34,7 +41,7 @@ public class StrategyHMC implements Strategy {
     private double P2RockUtility, P2PaperUtility, P2ScissorsUtility;
 
     //value for mu, can be adjusted as needed
-    private double mu = 4;
+    private double mu = 1;
 
     //number of possible actions
     private int StrategyArraySize = 0;
@@ -64,12 +71,7 @@ public class StrategyHMC implements Strategy {
 
 
 
-        if(game.getType().equals("RPS"))
-            StrategyArraySize = 2;
-
-        if(game.getType().equals("BOTS"))
-            StrategyArraySize = 1;
-
+        StrategyArraySize = initStrategy.length -1;
 
         //get player number
         p = player;
@@ -81,6 +83,9 @@ public class StrategyHMC implements Strategy {
 
         if(p==1) {
             strategy1 = Arrays.copyOf(initStrategy, initStrategy.length);
+            SUM_STRATEGY1 = Arrays.copyOf(initStrategy, initStrategy.length);
+
+
 
             for (double w : strategy1) {
                 if (w < 0) throw new IllegalArgumentException(
@@ -99,6 +104,7 @@ public class StrategyHMC implements Strategy {
 
         if(p==2) {
             strategy2 = Arrays.copyOf(initStrategy, initStrategy.length);
+            SUM_STRATEGY2 = Arrays.copyOf(initStrategy, initStrategy.length);
 
 
             strategySum = 0;
@@ -126,8 +132,11 @@ public class StrategyHMC implements Strategy {
 // TO DO: Complete this method
 
 
+
         if(p == 1) {
             double selector = random.nextDouble();
+          //  System.out.println("current selector: " + selector);
+
             int action = 0;
             while (action < strategy1.length) {
                 selector -= strategy1[action];
@@ -148,7 +157,10 @@ public class StrategyHMC implements Strategy {
                 action++;
             }
         }
-        return strategy2.length - 1;
+
+
+        return StrategyArraySize - 1;
+
 
     }
 
@@ -183,65 +195,65 @@ public class StrategyHMC implements Strategy {
 
                     //update Strategy
                     if (t > 1) {
-                        strategy1[1] = (1 / (t - 1)) * (Math.max(P1prevPaperRegret2 + P1PaperRegret, P1prevPaperRegret2)) * (1 / mu);
-                        strategy1[2] = (1 / (t - 1)) * (Math.max(P1prevScissorsRegret3 + P1ScissorsRegret, P1prevScissorsRegret3)) * (1 / mu);
+                        strategy1[1] = ((((double)1 / ((double)(t - 1)))) * (Math.max(P1PaperRegret, 0)) * (1 / mu));
+                        strategy1[2] = ((((double)1 / ((double)(t - 1)))) * (Math.max(P1ScissorsRegret, 0)) * (1 / mu));
                     } else {
-                        strategy1[1] = (Math.max(P1prevPaperRegret2 + P1PaperRegret, P1prevPaperRegret2)) * (1 / mu);
-                        strategy1[2] = (Math.max(P1prevScissorsRegret3 + P1ScissorsRegret, P1prevScissorsRegret3)) * (1 / mu);
+                        strategy1[1] = (Math.max(P1PaperRegret, 0)) * (1 / mu);
+                        strategy1[2] = (Math.max(P1ScissorsRegret, 0)) * (1 / mu);
                     }
 
 
                     //myAction = 0
-                    strategy1[myAction] = 1 - (strategy1[1] + strategy1[2]);
+                    strategy1[0] = 0;
 
 
                 }
                 //same for if we choose Paper:
                 if (myAction == 1) {
-                    P1RockUtility = game.utility(myAction, otherAction, player);
-                    P1PaperUtility = game.utility(0, otherAction, player);
+                    P1PaperUtility = game.utility(myAction, otherAction, player);
+                    P1RockUtility = game.utility(0, otherAction, player);
                     P1ScissorsUtility = game.utility(2, otherAction, player);
 
 
-                    P1RockRegret = (P1PaperUtility - P1RockUtility);
-                    P1ScissorsRegret = (P1ScissorsUtility - P1RockUtility);
+                    P1RockRegret = (P1RockUtility - P1PaperUtility);
+                    P1ScissorsRegret = (P1ScissorsUtility - P1PaperUtility);
 
 
                     //update Strategy
                     if (t > 1) {
-                        strategy1[0] = (1 / (t - 1)) * (Math.max(P1prevRockRegret1 + P1RockRegret, P1prevRockRegret1)) * (1 / mu);
-                        strategy1[2] = (1 / (t - 1)) * (Math.max(P1prevScissorsRegret3 + P1ScissorsRegret, P1prevScissorsRegret3)) * (1 / mu);
+                        strategy1[0] = ((((double)1 / ((double)(t - 1)))) * (Math.max(P1RockRegret, 0)) * (1 / mu));
+                        strategy1[2] = ((((double)1 / ((double)(t - 1)))) * (Math.max(P1ScissorsRegret, 0)) * (1 / mu));
                     } else {
-                        strategy1[0] = (Math.max(P1prevRockRegret1 + P1RockRegret, P1prevRockRegret1)) * (1 / mu);
-                        strategy1[2] = (Math.max(P1prevScissorsRegret3 + P1ScissorsRegret, P1prevScissorsRegret3)) * (1 / mu);
+                        strategy1[0] = (Math.max(P1RockRegret, 0)) * (1 / mu);
+                        strategy1[2] = (Math.max(P1ScissorsRegret, 0)) * (1 / mu);
                     }
 
 
-                    strategy1[myAction] = 1 - (strategy1[0] + strategy1[2]);
+                    strategy1[1] = 0;
 
                 }
                 //Finally Scissors
                 if (myAction == 2) {
-                    P1RockUtility = game.utility(myAction, otherAction, player);
-                    P1PaperUtility = game.utility(0, otherAction, player);
-                    P1ScissorsUtility = game.utility(1, otherAction, player);
+                    P1ScissorsUtility = game.utility(myAction, otherAction, player);
+                    P1RockUtility = game.utility(0, otherAction, player);
+                    P1PaperUtility = game.utility(1, otherAction, player);
 
 
-                    P1RockRegret = (P1PaperUtility - P1RockUtility);
-                    P1PaperRegret = (P1ScissorsUtility - P1RockUtility);
+                    P1RockRegret = (P1RockUtility - P1ScissorsUtility);
+                    P1PaperRegret = (P1PaperUtility - P1ScissorsUtility);
 
 
                     //update Strategy
                     if (t > 1) {
-                        strategy1[0] = (1 / (t - 1)) * (Math.max(P1prevRockRegret1 + P1RockRegret, P1prevRockRegret1)) * (1 / mu);
-                        strategy1[1] = (1 / (t - 1)) * (Math.max(P1prevPaperRegret2 + P1PaperRegret, P1prevPaperRegret2)) * (1 / mu);
+                        strategy1[0] = (((((double)1 / ((double)(t - 1)))) * (Math.max(P1RockRegret, 0)) * (1 / mu)));
+                        strategy1[1] = (((((double)1 / ((double)(t - 1)))) * (Math.max(P1PaperRegret, 0)) * (1 / mu)));
                     } else {
-                        strategy1[0] = (Math.max(P1prevRockRegret1 + P1RockRegret, P1prevRockRegret1)) * (1 / mu);
-                        strategy1[1] = (Math.max(P1prevPaperRegret2 + P1PaperRegret, P1prevPaperRegret2)) * (1 / mu);
+                        strategy1[0] = (Math.max(P1RockRegret, 0)) * (1 / mu);
+                        strategy1[1] = (Math.max(P1PaperRegret, 0)) * (1 / mu);
                     }
 
 
-                    strategy1[myAction] = 1 - (strategy1[0] + strategy1[1]);
+                    strategy1[2] = 0;
 
                 }
 
@@ -263,13 +275,13 @@ public class StrategyHMC implements Strategy {
 
                     //update Strategy
                     if (t > 1) {
-                        strategy1[1] = (1 / (t - 1)) * (Math.max(P1PaperRegret, P1prevPaperRegret2)) * (1 / mu);
+                        strategy1[1] = (((((double)1 / ((double)(t - 1)))) * (Math.max(P1PaperRegret, 0)) * (1 / mu)));
                     } else {
-                        strategy1[1] = (Math.max(P1prevPaperRegret2 + P1PaperRegret, P1prevPaperRegret2)) * (1 / mu);
+                        strategy1[1] = (Math.max(P1PaperRegret, 0)) * (1 / mu);
                     }
 
 
-                    strategy1[myAction] = 1 - (strategy1[1] + strategy1[2]);
+                    strategy1[0] = 0;
 
 
                 }
@@ -281,17 +293,17 @@ public class StrategyHMC implements Strategy {
                     P1RockRegret = (P1PaperUtility - P1RockUtility);
 
 
-                    strategy1[0] = (Math.max(P1prevRockRegret1 + P1RockRegret, P1prevRockRegret1)) * (1 / mu);
+                    strategy1[0] = (Math.max(P1RockRegret, 0)) * (1 / mu);
 
                     //update Strategy
                     if (t > 1) {
-                        strategy1[0] = (1 / (t - 1)) * (Math.max(P1RockRegret, P1prevRockRegret1)) * (1 / mu);
+                        strategy1[0] = (((((double)1 / ((double)(t - 1)))) * (Math.max(P1RockRegret, 0)) * (1 / mu)));
                     } else {
-                        strategy1[0] = (Math.max(P1RockRegret, P1prevRockRegret1)) * (1 / mu);
+                        strategy1[0] = (Math.max(P1RockRegret, 0)) * (1 / mu);
                     }
 
 
-                    strategy1[myAction] = 1 - (strategy1[0] + strategy1[2]);
+                    strategy1[1] = 0;
 
                 }
 
@@ -304,8 +316,37 @@ public class StrategyHMC implements Strategy {
             P1prevScissorsRegret3 += P1ScissorsRegret;
 
 
+          //  System.out.println("t: " + t);
+
+
+
+            for(int i = 0; i<SUM_STRATEGY1.length; i++) {
+           //     System.out.println("Value in SUM Before at index " + i+ " : " + SUM_STRATEGY1[i]);
+
+                SUM_STRATEGY1[i] += strategy1[i];
+
+           //     System.out.println("Value in SUM After at index " + i+ " : " + SUM_STRATEGY1[i]);
+
+
+             //   System.out.println("Regret for index " + i+ " : " + strategy1[i]);
+
+
+                if(t>1)
+                    strategy1[i] = ((SUM_STRATEGY1[i]));
+                else
+                    strategy1[i] = (SUM_STRATEGY1[i]);
+
+           //    System.out.println("Value in Strategy After at index " + i+ " : " + strategy1[i]);
+
+
+
+
+            }
+
             //increment time
             t++;
+
+
 
         }
 
@@ -316,19 +357,18 @@ if(p == 2) {
 
 //if we are playing RPS, i.e there are 3 strategies available
     if (StrategyArraySize == 2) {
+
         //if we chose rock
         if (myAction == 0) {
-
             //find utilities of our choice
-            P2RockUtility = game.utility(myAction, otherAction, player);
+            P2RockUtility = game.utility(0, otherAction, player);
 
             //find utilities of other choices:
+                //paper
+                P2PaperUtility = game.utility(1, otherAction, player);
 
-            //paper
-            P2PaperUtility = game.utility(1, otherAction, player);
-
-            //scissors
-            P2ScissorsUtility = game.utility(2, otherAction, player);
+                //scissors
+                P2ScissorsUtility = game.utility(2, otherAction, player);
 
             //Find regret of not choosing each alternate
             P2PaperRegret = (P2PaperUtility - P2RockUtility);
@@ -337,63 +377,63 @@ if(p == 2) {
 
             //update Strategy
             if (t > 1) {
-                strategy2[1] = (1 / (t - 1)) * (Math.max(P2prevPaperRegret + P2PaperRegret, P2prevPaperRegret)) * (1 / mu);
-                strategy2[2] = (1 / (t - 1)) * (Math.max(P2prevScissorRegret + P2ScissorsRegret, P2prevScissorRegret)) * (1 / mu);
+                strategy2[1] = ((((double)1 / ((double)(t - 1)))) * (Math.max(P2PaperRegret, 0)) * (1 / mu));
+                strategy2[2] = ((((double)1 / ((double)(t - 1)))) * (Math.max(P2ScissorsRegret, 0)) * (1 / mu));
             } else {
-                strategy2[1] = (Math.max(P2prevPaperRegret + P2PaperRegret, P2prevPaperRegret)) * (1 / mu);
-                strategy2[2] = (Math.max(P2prevScissorRegret + P2ScissorsRegret, P2prevScissorRegret)) * (1 / mu);
+                strategy2[1] = (Math.max(P2PaperRegret, 0)) * (1 / mu);
+                strategy2[2] = (Math.max(P2ScissorsRegret, 0)) * (1 / mu);
             }
 
 
             //myAction = 0
-            strategy2[myAction] = 1 - (strategy2[1] + strategy2[2]);
+            strategy2[myAction] = 0;
 
 
         }
         if (myAction == 1) {
-            P2RockUtility = game.utility(myAction, otherAction, player);
-            P2PaperUtility = game.utility(0, otherAction, player);
+            P2PaperUtility = game.utility(myAction, otherAction, player);
+            P2RockUtility = game.utility(0, otherAction, player);
             P2ScissorsUtility = game.utility(2, otherAction, player);
 
 
-            P2RockRegret = (P2PaperUtility - P2RockUtility);
-            P2ScissorsRegret = (P2ScissorsUtility - P2RockUtility);
+            P2RockRegret = (P2RockUtility - P2PaperUtility);
+            P2ScissorsRegret = (P2ScissorsUtility - P2PaperUtility);
 
 
             //update Strategy
             if (t > 1) {
-                strategy2[0] = (1 / (t - 1)) * (Math.max(P2prevRockRegret + P2RockRegret, P2prevRockRegret)) * (1 / mu);
-                strategy2[2] = (1 / (t - 1)) * (Math.max(P2prevScissorRegret + P2ScissorsRegret, P2prevScissorRegret)) * (1 / mu);
+                strategy2[0] = ((((double)1 / ((double)(t - 1)))) * (Math.max(P2RockRegret, 0)) * (1 / mu));
+                strategy2[2] = ((((double)1 / ((double)(t - 1)))) * (Math.max(P2ScissorsRegret, 0)) * (1 / mu));
             } else {
-                strategy2[0] = (Math.max(P2prevRockRegret + P2RockRegret, P2prevRockRegret)) * (1 / mu);
-                strategy2[2] = (Math.max(P2prevScissorRegret + P2ScissorsRegret, P2prevScissorRegret)) * (1 / mu);
+                strategy2[0] = (Math.max(P2RockRegret, 0)) * (1 / mu);
+                strategy2[2] = (Math.max(P2ScissorsRegret, 0)) * (1 / mu);
             }
 
 
-            strategy2[myAction] = 1 - (strategy2[0] + strategy2[2]);
+            strategy2[myAction] = 0;
 
         }
         if (myAction == 2) {
-            P2RockUtility = game.utility(myAction, otherAction, player);
-            P2PaperUtility = game.utility(0, otherAction, player);
-            P2ScissorsUtility = game.utility(1, otherAction, player);
+            P2ScissorsUtility = game.utility(myAction, otherAction, player);
+            P2RockUtility = game.utility(0, otherAction, player);
+            P2PaperUtility = game.utility(1, otherAction, player);
 
 
-            P2RockRegret = (P2PaperUtility - P2RockUtility);
-            P2PaperRegret = (P2ScissorsUtility - P2RockUtility);
+            P2RockRegret = (P2RockUtility - P2ScissorsUtility);
+            P2PaperRegret = (P2PaperUtility - P2ScissorsUtility);
 
 
             //update Strategy
             if (t > 1) {
-                strategy2[0] = (1 / (t - 1)) * (Math.max(P2prevRockRegret + P2RockRegret, P2prevRockRegret)) * (1 / mu);
-                strategy2[1] = (1 / (t - 1)) * (Math.max(P2prevPaperRegret + P2PaperRegret, P2prevPaperRegret)) * (1 / mu);
+                strategy2[0] = ((((double)1 / ((double)(t - 1)))) * (Math.max(P2RockRegret, 0)) * (1 / mu));
+                strategy2[1] = ((((double)1 / ((double)(t - 1)))) * (Math.max(P2PaperRegret, 0)) * (1 / mu));
             } else {
-                strategy2[0] = (Math.max(P2prevRockRegret + P2RockRegret, P2prevRockRegret)) * (1 / mu);
-                strategy2[1] = (Math.max(P2prevPaperRegret + P2PaperRegret, P2prevPaperRegret)) * (1 / mu);
+                strategy2[0] = (Math.max(P2RockRegret, 0)) * (1 / mu);
+                strategy2[1] = (Math.max(P2PaperRegret, 0)) * (1 / mu);
             }
 
 
-            strategy2[myAction] = 1 - (strategy2[0] + strategy2[1]);
+            strategy2[myAction] = 0;
 
         }
 
@@ -414,13 +454,13 @@ if(p == 2) {
 
             //update Strategy
             if (t > 1) {
-                strategy2[1] = (1 / (t - 1)) * (Math.max(P2PaperRegret, P2prevPaperRegret)) * (1 / mu);
+                strategy2[1] = (Math.max(((((double)1 / ((double)(t - 1)))))*P2PaperRegret, 0)) * (1 / mu);
             } else {
-                strategy2[1] = (Math.max(P2prevPaperRegret + P2PaperRegret, P2prevPaperRegret)) * (1 / mu);
+                strategy2[1] = (Math.max(P2PaperRegret, 0)) * (1 / mu);
             }
 
 
-            strategy2[myAction] = 1 - (strategy2[1] + strategy2[2]);
+            strategy2[myAction] = 0;
 
 
         }
@@ -432,17 +472,15 @@ if(p == 2) {
             P2RockRegret = (P2PaperUtility - P2RockUtility);
 
 
-            strategy2[0] = (Math.max(P2prevRockRegret + P2RockRegret, P2prevRockRegret)) * (1 / mu);
-
             //update Strategy
             if (t > 1) {
-                strategy2[0] = (1 / (t - 1)) * (Math.max(P2RockRegret, P2prevRockRegret)) * (1 / mu);
+                strategy2[0] = ((((double)1 / ((double)(t - 1)))) * (Math.max(P2RockRegret, 0)) * (1 / mu));
             } else {
-                strategy2[0] = (Math.max(P2RockRegret, P2prevRockRegret)) * (1 / mu);
+                strategy2[0] = (Math.max(P2RockRegret, 0)) * (1 / mu);
             }
 
 
-            strategy2[myAction] = 1 - (strategy2[0] + strategy2[2]);
+            strategy2[myAction] = 0;
 
         }
 
@@ -455,11 +493,85 @@ if(p == 2) {
     P2prevScissorRegret += P2ScissorsRegret;
 
 
-    //increment time
+
+
+
+    for(int i = 0; i<SUM_STRATEGY2.length; i++) {
+        //     System.out.println("Value in SUM Before at index " + i+ " : " + SUM_STRATEGY1[i]);
+
+        SUM_STRATEGY2[i] += strategy2[i];
+
+        //     System.out.println("Value in SUM After at index " + i+ " : " + SUM_STRATEGY1[i]);
+
+
+        //   System.out.println("Regret for index " + i+ " : " + strategy1[i]);
+
+
+        if(t>1)
+            strategy2[i] = ((SUM_STRATEGY2[i]));
+        else
+            strategy2[i] = (SUM_STRATEGY2[i]);
+
+        //    System.out.println("Value in Strategy After at index " + i+ " : " + strategy1[i]);
+
+
+
+
+    }
+
+
+//increment time
     t++;
 
 
+
+
 }
+
+        double strategySum = 0;
+
+        //setup array based on player number
+//for(int j =0; j<strategy1.length; j++)
+        //System.out.println("Value in SUM After at index " + j+ " : " + strategy1[j]);
+
+        if(p==1) {
+
+            for (double w : strategy1) {
+                if (w < 0) throw new IllegalArgumentException(
+                        "The weights in the strategy array must be non-negative");
+                strategySum += w;
+            }
+            if (strategySum == 0.0) throw new IllegalArgumentException(
+                    "The weights in the strategy array must sum to a positive value");
+            // Normalize weights to get probabilities
+            for (int i = 0; i < strategy1.length; i++) {
+                strategy1[i] /= strategySum;
+                //System.out.println("\nNew strategy for index " + i+ " : " + strategy1[i]);
+
+            }
+
+        }
+
+
+        if(p==2) {
+
+            strategySum = 0;
+
+            for (double w : strategy2) {
+                if (w < 0) throw new IllegalArgumentException(
+                        "The weights in the strategy array must be non-negative");
+                strategySum += w;
+            }
+            if (strategySum == 0.0) throw new IllegalArgumentException(
+                    "The weights in the strategy array must sum to a positive value");
+            // Normalize weights to get probabilities
+            for (int i = 0; i < strategy2.length; i++) {
+                strategy2[i] /= strategySum;
+                //  System.out.println("\nNew strategy for index " + i+ " : " + strategy1[i]);
+
+            }
+
+        }
     }
 
 

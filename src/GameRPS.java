@@ -24,8 +24,6 @@ else {
     public String actionAsString(int actionIndex) {
         return ACTIONS[actionIndex];
     }
+    }
 
-    public String getType() {
-        return "RPS";
-    } }
 

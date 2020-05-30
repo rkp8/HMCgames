@@ -27,9 +27,6 @@ public class GameBOTS implements Game {
         return ACTIONS[actionIndex];
     }
 
-    public String getType() {
-        return "BOTS";
-    }
 }
 
 

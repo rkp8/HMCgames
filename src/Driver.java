@@ -1,15 +1,23 @@
 public class Driver {
     static boolean DEBUG = false;
-    static int totalRounds = 1_000_000;
+    static int totalRounds = 1_000_000_0;
     public static void main(String[] args) {
         Game game = new GameRPS();
-        Player player1 = new Player(new StrategyHMC(new double[] {0.33,0.33,0.33}, game, 1), game, 1);
-        Player player2 = new Player(new StrategyHMC(new double[] {0.33,0.33,0.33}, game, 2), game, 2);
+        Player player1 = new Player(new StrategyHMC(new double[] {0.5,0.5, 0.}, game, 1), game, 1);
+        Player player2 = new Player(new StrategyFixed(new double[] {0.5,0.4, 0.1}), game, 2);
         int p1Wins = 0, p2Wins = 0;
         double p1TotalUtility = 0, p2TotalUtility = 0;
         for (int i = 0; i < totalRounds; i++) {
             int p1Choice = player1.chooseAction();
+
+           // System.out.println("\nour choice: " + p1Choice);
+
             int p2Choice = player2.chooseAction();
+
+           // System.out.println("opponent choice: " + p2Choice);
+
+
+
             double p1Utility = game.utility(p1Choice, p2Choice, 1);
             double p2Utility = game.utility(p2Choice, p1Choice, 2);
             p1TotalUtility += p1Utility;

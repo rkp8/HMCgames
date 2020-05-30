@@ -12,7 +12,6 @@ int utility(int myAction, int otherAction, int player);
      */
     String actionAsString(int actionIndex);
 
-    String getType();
 
 }
 
